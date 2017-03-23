@@ -1,0 +1,82 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".activity.MainActivity">
+
+    <item
+        android:id="@+id/menu_main_action_search"
+        android:title="@string/search"
+        android:icon="@drawable/ic_search_white_24dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:showAsAction="ifRoom|collapseActionView"
+        app:actionViewClass="android.support.v7.widget.SearchView" />
+
+    <item
+        android:id="@+id/menu_main_action_add"
+        android:orderInCategory="100"
+        android:title="@string/add"
+        android:icon="@drawable/ic_add_white_24dp"
+        app:showAsAction="ifRoom|withText" />
+
+    <item
+        android:id="@+id/menu_main_action_edit"
+        android:orderInCategory="200"
+        android:title="@string/edit"
+        android:icon="@drawable/ic_edit_white_24dp"
+        android:visible="false"
+        app:showAsAction="ifRoom|withText" />
+
+    <item
+        android:id="@+id/menu_main_action_archive"
+        android:orderInCategory="250"
+        android:title="@string/archive"
+        android:icon="@drawable/ic_archive_white_24dp"
+        android:visible="false"
+        app:showAsAction="ifRoom|withText" />
+
+    <item
+        android:id="@+id/menu_main_action_open_archive"
+        android:orderInCategory="280"
+        android:title="@string/open_archive"
+        android:icon="@drawable/ic_delete_white_24dp"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/menu_main_action_import"
+        android:orderInCategory="400"
+        android:title="@string/import_data"
+        android:icon="@drawable/ic_cloud_download_white_24dp"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/menu_main_action_export"
+        android:orderInCategory="450"
+        android:title="@string/export"
+        android:icon="@drawable/ic_backup_white_24dp"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/menu_main_action_settings"
+        android:orderInCategory="500"
+        android:title="@string/action_settings"
+        android:icon="@drawable/ic_settings_white_24dp"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/menu_main_action_dummy"
+        android:orderInCategory="50"
+        android:title="Dummydaten"
+        android:visible="false"
+        android:icon="@drawable/ic_sync_white_24dp"
+        app:showAsAction="ifRoom|withText" />
+
+    <item
+        android:id="@+id/menu_main_action_delall"
+        android:orderInCategory="51"
+        android:title="Clean"
+        android:visible="false"
+        android:icon="@drawable/ic_delete_forever_white_24px"
+        app:showAsAction="ifRoom|withText" />
+
+</menu>

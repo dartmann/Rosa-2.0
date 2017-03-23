@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#4c4c4c</color>
+    <color name="colorPrimaryDark">#000000</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="colorSure">#FFB5B5</color>
+    <color name="colorAlmostSure">#A2C3FC</color>
+    <color name="colorUnsure">#FCF9A2</color>
+    <color name="colorLightGray">#CFCFCF</color>
+    <color name="colorSwipeDelete">#DD3B3B</color>
+    <color name="colorSwipeArchive">#2DC90E</color>
+</resources>
