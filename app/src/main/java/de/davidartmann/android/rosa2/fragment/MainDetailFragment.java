@@ -185,8 +185,8 @@ public class MainDetailFragment extends Fragment implements View.OnClickListener
     }
 
     /**
-     * Not used at the moment, but kept for later purpose of importing the desired contact number and name
-     * in our database(?).
+     * Not used at the moment, but kept for later purpose of importing the desired contact number
+     * and name in our database (?).
      */
     private void checkReadContactsPermission() {
         String permission = Manifest.permission.READ_CONTACTS;

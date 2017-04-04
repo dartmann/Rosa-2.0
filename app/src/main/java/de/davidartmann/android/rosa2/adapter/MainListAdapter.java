@@ -22,7 +22,7 @@ import de.davidartmann.android.rosa2.adapter.viewholder.MainListViewholder;
 import de.davidartmann.android.rosa2.database.async.ArchivePersonsTask;
 import de.davidartmann.android.rosa2.database.async.PersistPersonsTask;
 import de.davidartmann.android.rosa2.database.model.Person;
-import de.davidartmann.android.rosa2.util.MyItemTouchHelper;
+import de.davidartmann.android.rosa2.util.ItemTouchHelperCallback;
 import de.davidartmann.android.rosa2.util.eventbus.event.DecMainListPersAtPosEvent;
 import de.davidartmann.android.rosa2.util.eventbus.event.EndArchivePersonEvent;
 import de.davidartmann.android.rosa2.util.eventbus.event.InitArchivePersonEvent;
@@ -41,7 +41,7 @@ public class MainListAdapter extends RecyclerView.Adapter<MainListViewholder> {
     private List<Person> mPersonsFiltered;
     private Context mContext;
     private EventBus mEventBus;
-    private MyItemTouchHelper mMyItemTouchHelper;
+    private ItemTouchHelperCallback mItemTouchHelperCallback;
 
     public MainListAdapter(int layout, Context context, EventBus eventBus,
                            ItemTouchHelper.Callback cb) {
@@ -51,8 +51,8 @@ public class MainListAdapter extends RecyclerView.Adapter<MainListViewholder> {
         mContext = context;
         mEventBus = eventBus;
         mEventBus.register(this);
-        mMyItemTouchHelper = (MyItemTouchHelper) cb;
-        ((MyItemTouchHelper) cb).setMainListAdapter(this);
+        mItemTouchHelperCallback = (ItemTouchHelperCallback) cb;
+        ((ItemTouchHelperCallback) cb).setMainListAdapter(this);
     }
 
     @Override
@@ -101,7 +101,8 @@ public class MainListAdapter extends RecyclerView.Adapter<MainListViewholder> {
     }
 
     /**
-     * Called from the {@link de.davidartmann.android.rosa2.util.MyItemTouchHelper#onSwiped(RecyclerView.ViewHolder, int)}.
+     * Called from the
+     * {@link ItemTouchHelperCallback#onSwiped(RecyclerView.ViewHolder, int)}.
      * This is superior to the EventBus callback method, which had the problem of IOOB.
      *
      * @param viewHolder which got swiped.
@@ -109,34 +110,53 @@ public class MainListAdapter extends RecyclerView.Adapter<MainListViewholder> {
      */
     public void swipe(RecyclerView.ViewHolder viewHolder, int direction) {
         //we do not ask for confirmation here, because swiping requires more than a simple click
-        // and thus when done, we claim the user knows what he did... (although he can undo the action)
-        mMyItemTouchHelper.setSwipeEnabled(false);
-        int position = viewHolder.getAdapterPosition();
-        Person person = mPersons.get(position);
-        mPersons.remove(person);
-        notifyItemRemoved(position);
-        if (direction == ItemTouchHelper.START) {       //left swipe -> archiving
-            showSnackBar(mContext.getString(R.string.person_archived), viewHolder.itemView,
-                    person, position);
+        // and thus when done, we claim the user knows what he did and additionally
+        // he can undo this.
+        mItemTouchHelperCallback.setSwipeEnabled(false);
+        final int position = viewHolder.getAdapterPosition();
+        final Person person = mPersons.get(position);
+        final boolean removeSuccess = mPersons.remove(person);
+        if (removeSuccess) {
+            notifyItemRemoved(position);
+            if (direction == ItemTouchHelper.START) {       //left swipe -> archiving
+                showSnackBar(mContext.getString(R.string.person_archived), viewHolder.itemView,
+                        person, position);
+            } else {
+                Log.w(TAG, "Unknown swipe direction: " + direction);
+            }
         } else {
-            Log.w(TAG, "Unknown swipe direction: " + direction);
+            Log.w(TAG, "Removing Person from list did no succeed");
         }
-        logPos();
     }
 
-    private void showSnackBar(String snackText, View view,
+    /**
+     * Informs the user with a {@link Snackbar} about a given event.
+     *
+     * @param snackText text which will be shown.
+     * @param view      used by the snackbar.
+     * @param person    either to forward the person for archiving or when undone to add it
+     *                  back to the active persons.
+     * @param position  when person is archived successfully all persons with a higher position
+     *                  get decremented and if undone the person gets added back to its given
+     *                  position.
+     */
+    private void showSnackBar(final String snackText, final View view,
                               final Person person, final int position) {
         Snackbar.make(view, snackText, Snackbar.LENGTH_LONG)
                 .setAction(R.string.undo, new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         mPersons.add(position, person);
-                        notifyItemInserted(position);
-                        mMyItemTouchHelper.setSwipeEnabled(true);
+                        //TODO: API 25.3.1 seems to has a bug, that it does not show the
+                        // add of an entry on index 0. So we work around by calling
+                        // notifyDataSetChanged() instead of notifyItemInserted(position).
+                        //notifyItemInserted(position);
+                        notifyDataSetChanged();
+                        mItemTouchHelperCallback.setSwipeEnabled(true);
                     }
                 })
                 .setActionTextColor(ContextCompat.getColor(mContext, R.color.colorAccent))
-                .setCallback(new Snackbar.Callback() {
+                .addCallback(new Snackbar.Callback() {
                     @Override
                     public void onDismissed(Snackbar snackbar, int event) {
                         if (event == Snackbar.Callback.DISMISS_EVENT_TIMEOUT) {
@@ -151,13 +171,28 @@ public class MainListAdapter extends RecyclerView.Adapter<MainListViewholder> {
                             }
                             new PersistPersonsTask(mContext, mEventBus, mPersons).execute();
                             mEventBus.post(new EndArchivePersonEvent(mPersons));
-                            mMyItemTouchHelper.setSwipeEnabled(true);
+                            mItemTouchHelperCallback.setSwipeEnabled(true);
                         }
                     }
                 }).show();
     }
 
+    /**
+     * Called from {@link ItemTouchHelperCallback} when an item is moved.
+     *
+     * @param fromPos old position where movement started.
+     * @param toPos   target position where the moved item is dragged.
+     */
     public void move(int fromPos, int toPos) {
+        // ------------------------------------------------------------------------
+        //TODO: testing Collections.swap()
+        // and simpler approach by iterating whole list and setting cleaned index
+        // ------------------------------------------------------------------------
+        Collections.swap(mPersons, fromPos, toPos);
+        for (int i = 0; i < mPersons.size(); i++) {
+            mPersons.get(i).setPosition(i);
+        }
+        /*
         if (fromPos < toPos) {
             for (int i = fromPos; i < toPos; i++) {
                 if (i == fromPos) {
@@ -181,9 +216,10 @@ public class MainListAdapter extends RecyclerView.Adapter<MainListViewholder> {
         } else {
             Log.w(TAG, "Listitem moved although fromPos == toPos");
         }
+        */
         notifyItemMoved(fromPos, toPos);
         new PersistPersonsTask(mContext, mEventBus, mPersons).execute();
-        logPos();
+        //logPos();
     }
 
     //TODO: debugging

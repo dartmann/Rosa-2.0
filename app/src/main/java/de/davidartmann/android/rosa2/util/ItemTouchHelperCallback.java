@@ -10,10 +10,7 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.support.v7.widget.helper.ItemTouchHelper.Callback;
-import android.util.Log;
 import android.view.View;
-
-import com.google.common.eventbus.EventBus;
 
 import de.davidartmann.android.rosa2.R;
 import de.davidartmann.android.rosa2.adapter.MainListAdapter;
@@ -24,22 +21,44 @@ import de.davidartmann.android.rosa2.adapter.viewholder.MainListViewholder;
  * {@link android.support.v7.widget.helper.ItemTouchHelper.SimpleCallback}.
  * Created by david on 05.10.16.
  */
-public class MyItemTouchHelper extends Callback {
+public class ItemTouchHelperCallback extends Callback {
 
-    private static final String TAG = MyItemTouchHelper.class.getSimpleName();
+    @SuppressWarnings("unused")
+    private static final String TAG = ItemTouchHelperCallback.class.getSimpleName();
     private static final float ALPHA_FULL = 1.0f;
 
-    private EventBus mEventBus;
+    /**
+     * {@link Context} to access resources.
+     */
     private Context mContext;
+    /**
+     * Paint instance to save unnecessary instantiations and only create a single instance
+     * when this class is created. This is used for drawing background rectangles in the
+     * swiped itemview.
+     */
     private Paint mPaint;
+    /**
+     * {@link MainListAdapter} instance which is used when a view is swiped to forward the event.
+     * The reference is set by {@link #setMainListAdapter(MainListAdapter)} inside of
+     * MainListAdapter.
+     */
     private MainListAdapter mMainListAdapter;
+    /**
+     * Boolean member which states the actual swiping policy.
+     *
+     * @see #setSwipeEnabled(boolean)
+     */
     private boolean mSwipeEnabled;
 
-    public MyItemTouchHelper(Context context, EventBus eventBus) {//, MainListAdapter adapter) {
-        mEventBus = eventBus;
+    /**
+     * Constructor which passes the necessary {@link Context} instance, instantiates
+     * {@link #mPaint} and sets the initial swiping policy to true ({@link #mSwipeEnabled}).
+     *
+     * @param context for accessing resources.
+     */
+    public ItemTouchHelperCallback(Context context) {
         mContext = context;
         mPaint = new Paint();
-        //mMainListAdapter = adapter;
         mSwipeEnabled = true;
     }
 
@@ -210,17 +229,26 @@ public class MyItemTouchHelper extends Callback {
      */
     @Override
     public boolean isItemViewSwipeEnabled() {
-        return isSwipeEnabled();
-    }
-
-    private boolean isSwipeEnabled() {
         return mSwipeEnabled;
     }
 
+    /**
+     * Sets the actual policy if swiping is allowed. This is done because we disallow swiping
+     * when a {@link de.davidartmann.android.rosa2.database.model.Person} is archived
+     * asynchronously to avoid race conditions.
+     *
+     * @param mSwipeEnabled true or false.
+     */
     public void setSwipeEnabled(boolean mSwipeEnabled) {
         this.mSwipeEnabled = mSwipeEnabled;
     }
 
+    /**
+     * Sets the regarding {@link MainListAdapter} for calling methods on when items are swiped
+     * or moved.
+     *
+     * @param mMainListAdapter corresponding instance.
+     */
     public void setMainListAdapter(MainListAdapter mMainListAdapter) {
         this.mMainListAdapter = mMainListAdapter;
     }

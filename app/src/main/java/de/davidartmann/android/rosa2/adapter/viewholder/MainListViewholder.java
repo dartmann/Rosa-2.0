@@ -15,8 +15,8 @@ import com.squareup.picasso.Picasso;
 import java.io.File;
 
 import de.davidartmann.android.rosa2.R;
-import de.davidartmann.android.rosa2.activity.MainActivity;
 import de.davidartmann.android.rosa2.database.model.Person;
+import de.davidartmann.android.rosa2.util.ItemTouchHelperCallback;
 import de.davidartmann.android.rosa2.util.RoundedTransformation;
 import de.davidartmann.android.rosa2.util.eventbus.event.MainListItemClickEvent;
 
@@ -117,7 +117,7 @@ public class MainListViewholder extends RecyclerView.ViewHolder implements View.
     }
 
     /**
-     * Called from the {@link de.davidartmann.android.rosa2.util.MyItemTouchHelper#clearView(RecyclerView, RecyclerView.ViewHolder)}.
+     * Called from the {@link ItemTouchHelperCallback#clearView(RecyclerView, RecyclerView.ViewHolder)}.
      */
     public void onClear() {
         setCardBackground();

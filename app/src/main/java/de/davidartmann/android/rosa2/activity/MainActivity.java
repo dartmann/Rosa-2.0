@@ -246,6 +246,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void showJsonFileChooser() {
         //String mimeType = "application/json"; //RFC 4627
+        /*
+        This check is not necessary to the actual gradle config but left here for
+        eventual later downgrade setups.
+         */
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
             Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
             //intent.setType(mimeType);
@@ -316,7 +320,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /* Checks if external storage is available to at least read */
-    public boolean isExternalStorageReadable() {
+    private boolean isExternalStorageReadable() {
         String state = Environment.getExternalStorageState();
         return Environment.MEDIA_MOUNTED.equals(state) ||
                 Environment.MEDIA_MOUNTED_READ_ONLY.equals(state);
@@ -395,6 +399,8 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, EditActivity.class);
         //Log.d(TAG, "number of persons: " + mActivePers.size() + "\nclickpos: " + mClickPos);
         if (addPerson) {
+            //TODO: check this. The size of the list is given here and in EditActivity
+            // we assign the new or edited person the number of persons. Maybe this is erroneous.
             intent.putExtra(getString(R.string.num_persons_bundle_id), mActivePers.size());
         } else if (mActivePers.size() > mClickPos) {
             Log.d(TAG, "persons: " + mActivePers.size() + ", clickpos: " + mClickPos);

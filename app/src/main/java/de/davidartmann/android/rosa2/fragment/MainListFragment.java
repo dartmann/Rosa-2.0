@@ -3,15 +3,10 @@ package de.davidartmann.android.rosa2.fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SearchView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -21,7 +16,7 @@ import com.google.common.eventbus.Subscribe;
 import de.davidartmann.android.rosa2.R;
 import de.davidartmann.android.rosa2.adapter.MainListAdapter;
 import de.davidartmann.android.rosa2.database.async.FindAllPersonsTask;
-import de.davidartmann.android.rosa2.util.MyItemTouchHelper;
+import de.davidartmann.android.rosa2.util.ItemTouchHelperCallback;
 import de.davidartmann.android.rosa2.util.eventbus.EventBusHelper;
 import de.davidartmann.android.rosa2.util.eventbus.event.FoundAllActivePersonEvent;
 
@@ -47,7 +42,7 @@ public class MainListFragment extends Fragment {
         }
         mEventBus.register(this);
 
-        ItemTouchHelper.Callback cb = new MyItemTouchHelper(context, mEventBus);//, mMainListAdapter);
+        ItemTouchHelper.Callback cb = new ItemTouchHelperCallback(context);
         ItemTouchHelper touchHelper = new ItemTouchHelper(cb);
 
         mRecyclerView = (RecyclerView) view.findViewById(R.id.fragment_main_list_recyclerview);
